@@ -16,7 +16,7 @@ python hw1_5.py
 ```
 
 ## Result
-![](history_20201027_184751.png)
+![](result.png)
 
 ## 心得
 - VGG16 因為 weight 太多（224x224），不太適合拿來套在 Cifar10（32x32）
