@@ -3,7 +3,7 @@ from tensorflow.keras.layers import Conv2D, MaxPooling2D
 
 class Model(tf.keras.Model):
     # structure of the model
-    def __init__(self, input_shape=(224, 224, 3), name='vgg16'):
+    def __init__(self, input_shape=(1, 224, 224, 3), name='vgg16'):
         super(Model, self).__init__(name = name)
         self.conv1_1 = Conv2D(64, (3, 3), input_shape=input_shape, padding='same', activation='relu')
         self.conv1_2 = Conv2D(64, (3, 3), padding='same', activation='relu')
