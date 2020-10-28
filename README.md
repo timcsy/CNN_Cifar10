@@ -1,18 +1,16 @@
 # Recognizing Cifar10 using All-CNN / VGG16
 
 ## Requirements
-- Python 3
+- Python 3 64-bit
 - Dependency
 	```
 	tkinter tensorflow matplotlib numpy
 	```
 
 ## Usage
-
 run:
-
 ```
-python hw1_5.py
+python cnn.py
 ```
 
 ## Result

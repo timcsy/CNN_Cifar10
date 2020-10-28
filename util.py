@@ -10,7 +10,7 @@ matplotlib.rcParams['toolbar'] = 'None'
 import matplotlib.pyplot as plt
 
 # model path
-model_path = 'AllCNN.h5'
+model_path = 'model/AllCNN.h5'
 
 # data
 cifar10 = tf.keras.datasets.cifar10
@@ -97,7 +97,7 @@ def train():
     plt.ylabel('loss')
     plt.show()
     t = time.localtime()
-    plt.savefig('history_' + time.strftime("%Y%m%d_%H%M%S", t) + '.png')
+    plt.savefig('images/history_' + time.strftime("%Y%m%d_%H%M%S", t) + '.png')
 
 def predict(index):
     global model, x_test, x_test_n, y_test, class_names
@@ -110,7 +110,7 @@ def predict(index):
         model.load_weights(model_path)
     
     # prediction (with softmax)
-    prediction = tf.nn.softmax(model.predict(x_test_n[index:index+1]))[0]
+    prediction = model.predict(x_test_n[index:index+1])[0]
 
     # Inference
     inference = int(tf.math.argmax(prediction))
