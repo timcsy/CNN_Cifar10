@@ -1,4 +1,4 @@
-# Recognizing Cifar10 using All-CNN / VGG16
+# Recognizing Cifar10 using VGG16 / All-CNN
 
 ## Requirements
 - Python 3 64-bit
@@ -17,9 +17,10 @@ python cnn.py
 ![](images/result.png)
 
 ## 心得
-- VGG16 因為 weight 太多（224x224），不太適合拿來套在 Cifar10（32x32）
-- 用 VGG16 訓練一開始（或我有跑過的次數），Accuracy 結果都趨近於0.1（隨便亂猜的意思）
 - Colab 可以用 GPU 加速！！
+- 用 VGG16 訓練一開始，Accuracy 結果都趨近於0.1（隨便亂猜的意思）
+- VGG16 因為會 Gradient vanish，所以要做 batch normalize
+- 其實也有其他的 Model 可以實作，我也有用 All-CNN 來寫
 
 ## Reference
 - [Convolutional Neural Network (CNN)](https://www.tensorflow.org/tutorials/images/cnn)

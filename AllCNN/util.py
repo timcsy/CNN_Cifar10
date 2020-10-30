@@ -1,5 +1,5 @@
 import tensorflow as tf
-import VGG16
+from AllCNN import AllCNN
 import numpy as np
 import os
 import random
@@ -10,33 +10,26 @@ matplotlib.rcParams['toolbar'] = 'None'
 import matplotlib.pyplot as plt
 
 # model path
-model_path = 'model.h5'
+model_path = 'model/AllCNN.h5'
 
 # data
 cifar10 = tf.keras.datasets.cifar10
 ((x_train, y_train), (x_test, y_test)) = cifar10.load_data()
-# Eliminate an unused dimension
-y_train, y_test = np.reshape(y_train, y_train.shape), np.reshape(y_test, y_test.shape)
+# normalized  the data
+x_train_n, x_test_n = x_train / 255.0, x_test / 255.0
 
 # label names
 class_names = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
 
 # training hyperparameters
 batch_size = 32
-learning_rate = 0.001
-optimizer = 'Adam'
+learning_rate = 0.01
+momentum = 0.9
+optimizer = 'SGD'
 epochs = 20
 
 # structure of the model
-model = tf.keras.models.Sequential([
-    # tf.keras.applications.VGG16(include_top=False, weights=None, input_shape=(32, 32, 3)),
-    VGG16.Model(input_shape=(None, 32, 32, 3)),
-    tf.keras.layers.Flatten(), # flatten
-    tf.keras.layers.Dense(4096, activation='relu'), # FC1
-    tf.keras.layers.Dense(4096, activation='relu'), # FC2
-    tf.keras.layers.Dense(10, activation='softmax'), # output layer (with softmax)
-])
-model.build((None, 32, 32, 3))
+model = AllCNN(input_shape=(None, 32, 32, 3))
 
 def show_10_images():
     global x_train, y_train
@@ -65,31 +58,26 @@ def show_summary():
     model.summary()
 
 def train():
-    global model, x_train, y_train, x_test, y_test, batch_size, learning_rate, optimizer, epochs
+    global model, x_train_n, y_train, x_test_n, y_test, batch_size, learning_rate, momentum, optimizer, epochs
 
     # choose a optimizer
     if optimizer.upper() == 'ADAM':
-        opt = tf.keras.optimizers.Adam(learning_rate=learning_rate)
+        opt = tf.keras.optimizers.Adam(learning_rate=learning_rate, momentum=momentum)
     elif optimizer.upper() == 'SGD':
-        opt = tf.keras.optimizers.SGD(learning_rate=learning_rate)
+        opt = tf.keras.optimizers.SGD(learning_rate=learning_rate, momentum=momentum)
     
     # compile the model, prepare to train
     model.compile(
         optimizer=opt,
-        #optimizer='adam',
-        loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+        loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False), # from_logits=False: output layer is already softmax
         metrics=['accuracy']
     )
-
-    # normalized  the data
-    x_train_n, x_test_n = x_train / 255.0, x_test / 255.0
-    y_train, y_test = y_train, y_test
 
     # training
     history_training = model.fit(x_train_n, y_train, batch_size=batch_size, epochs=epochs, validation_data=(x_test_n, y_test))
 
     # save model
-    model.save(model_path)
+    model.save_weights(model_path)
 
     # plot
     training_accuracy = np.array(history_training.history['accuracy']) * 100
@@ -109,19 +97,20 @@ def train():
     plt.ylabel('loss')
     plt.show()
     t = time.localtime()
-    plt.savefig('history_' + time.strftime("%Y%m%d_%H%M%S", t) + '.png')
+    plt.savefig('images/history_' + time.strftime("%Y%m%d_%H%M%S", t) + '.png')
 
 def predict(index):
-    global model, x_test, y_test, class_names
+    global model, x_test, x_test_n, y_test, class_names
     if not 0 < index < len(x_test):
         index = 0
     
     # load model
     if os.path.exists(model_path):
-        model = tf.keras.models.load_model(model_path)
+        model.build(input_shape=(None, 32, 32, 3))
+        model.load_weights(model_path)
     
     # prediction (with softmax)
-    prediction = tf.nn.softmax(model.predict(x_test[index:index+1]))[0]
+    prediction = model.predict(x_test_n[index:index+1])[0]
 
     # Inference
     inference = int(tf.math.argmax(prediction))

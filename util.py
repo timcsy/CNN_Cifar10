@@ -1,5 +1,4 @@
 import tensorflow as tf
-from AllCNN import AllCNN
 import numpy as np
 import os
 import random
@@ -8,9 +7,10 @@ import matplotlib
 matplotlib.use('TkAgg')
 matplotlib.rcParams['toolbar'] = 'None' 
 import matplotlib.pyplot as plt
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, BatchNormalization, Dropout
 
 # model path
-model_path = 'model/AllCNN.h5'
+model_path = 'model/VGG16.h5'
 
 # data
 cifar10 = tf.keras.datasets.cifar10
@@ -23,13 +23,40 @@ class_names = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', '
 
 # training hyperparameters
 batch_size = 32
-learning_rate = 0.01
-momentum = 0.9
-optimizer = 'SGD'
-epochs = 20
+learning_rate = 0.001
+optimizer = 'Adam'
+epochs = 40
 
 # structure of the model
-model = AllCNN(input_shape=(None, 32, 32, 3))
+model = tf.keras.models.Sequential([
+    Conv2D(64, (3, 3), input_shape=(32, 32, 3), padding='same', activation='relu'), # conv1_1
+    Conv2D(64, (3, 3), padding='same', activation='relu'), # conv1_2
+    MaxPooling2D(pool_size=(2, 2), strides=2), # maxpool1
+    BatchNormalization(),
+    Conv2D(128, (3, 3), padding='same', activation='relu'), # conv2_1
+    Conv2D(128, (3, 3), padding='same', activation='relu'), # conv2_2
+    MaxPooling2D(pool_size=(2, 2), strides=2), # maxpool2
+    BatchNormalization(),
+    Conv2D(256, (3, 3), padding='same', activation='relu'), # conv3_1
+    Conv2D(256, (3, 3), padding='same', activation='relu'), # conv3_2
+    Conv2D(256, (3, 3), padding='same', activation='relu'), # conv3_3
+    MaxPooling2D(pool_size=(2, 2), strides=2), # maxpool3
+    BatchNormalization(),
+    Conv2D(512, (3, 3), padding='same', activation='relu'), # conv4_1
+    Conv2D(512, (3, 3), padding='same', activation='relu'), # conv4_2
+    Conv2D(512, (3, 3), padding='same', activation='relu'), # conv4_3
+    BatchNormalization(),
+    MaxPooling2D(pool_size=(2, 2), strides=2), # maxpool4
+    Conv2D(512, (3, 3), padding='same', activation='relu'), # conv5_1
+    Conv2D(512, (3, 3), padding='same', activation='relu'), # conv5_2
+    Conv2D(512, (3, 3), padding='same', activation='relu'), # conv5_3
+    MaxPooling2D(pool_size=(2, 2), strides=2), # maxpool5
+    BatchNormalization(),
+    Flatten(), # flatten
+    Dense(4096, activation='relu'), # fc1
+    Dense(4096, activation='relu'), # fc2
+    Dense(10, activation='softmax'), # output (with softmax) 
+], name='VGG16')
 
 def show_10_images():
     global x_train, y_train
